@@ -89,20 +89,27 @@ object HexUtils {
     /**
      * Get the vertices of a flat-top hexagon centered at the given pixel point.
      * Returns 6 corner points in clockwise order starting from the rightmost point.
+     *
+     * @param center  the center of the hexagon
+     * @param size    distance from center to vertex
+     * @param out     optional reusable list to fill and return (avoids allocation)
      */
-    fun hexCorners(center: PointF, size: Float = HEX_SIZE): List<PointF> {
-        val corners = mutableListOf<PointF>()
+    fun hexCorners(
+        center: PointF,
+        size: Float = HEX_SIZE,
+        out: MutableList<PointF> = mutableListOf()
+    ): List<PointF> {
+        out.clear()
         for (i in 0 until 6) {
             val angleDeg = 60f * i  // flat-top starts at 0 degrees (right)
             val angleRad = Math.toRadians(angleDeg.toDouble())
-            corners.add(
-                PointF(
-                    center.x + size * Math.cos(angleRad).toFloat(),
-                    center.y + size * Math.sin(angleRad).toFloat()
-                )
-            )
+            if (out.size <= i) {
+                out.add(PointF())
+            }
+            out[i].x = center.x + size * Math.cos(angleRad).toFloat()
+            out[i].y = center.y + size * Math.sin(angleRad).toFloat()
         }
-        return corners
+        return out
     }
 
     /**

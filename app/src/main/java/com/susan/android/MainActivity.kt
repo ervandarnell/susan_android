@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), HexBoardListener {
     private lateinit var btnReset: Button
     private lateinit var btnNewGame: Button
     private lateinit var btnBot: Button
+    private lateinit var btnRules: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +43,32 @@ class MainActivity : AppCompatActivity(), HexBoardListener {
         btnReset = findViewById(R.id.btnReset)
         btnNewGame = findViewById(R.id.btnNewGame)
         btnBot = findViewById(R.id.btnBot)
+        btnRules = findViewById(R.id.btnRules)
+
+        btnRules.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Susan — Rules")
+                .setMessage(
+                    """
+                    Susan is a two-player abstract game played on a hex grid.
+                    
+                    Players: White goes first, then Black.
+                    
+                    On each turn you must make exactly one move:
+                    
+                    • PLACE: Tap your color button, then tap any empty hex to place a stone.
+                    
+                    • SLIDE: Touch-drag one of your own stones to an empty adjacent hex.
+                    
+                    A player loses if any of their stones is not adjacent to an empty hex.
+                    If both players are surrounded on the same play, the player whose turn it is loses.
+                    
+                    No captures. Stones are never removed.
+                    """.trimIndent()
+                )
+                .setPositiveButton("OK", null)
+                .show()
+        }
 
         btnWhite.setOnClickListener {
             if (gameState.gameOver) return@setOnClickListener

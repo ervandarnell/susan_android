@@ -53,6 +53,7 @@ Create an Android app for the abstract game Susan.
 - A "Reset" button clears all stones from the board and resets the turn to White.
 - The UI must work in portrait orientation. Landscape is optional.
 - Touch events on hexagons must correctly map screen coordinates to hex coordinates using pixel-to-hex conversion.
+- Add a button that shows a pop-up dialog with the rules.
 
 ## Bot
 - Add a bot button so that a bot takes the current turn.  It could help a player on their turn, or take every turn and be an opponent.

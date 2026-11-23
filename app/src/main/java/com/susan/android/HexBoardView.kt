@@ -2,7 +2,6 @@ package com.susan.android
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
@@ -11,6 +10,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withScale
 
 /**
@@ -62,6 +62,11 @@ class HexBoardView @JvmOverloads constructor(
     /** Legal slide destinations for the currently selected stone. */
     private var dragDestinations: Set<HexCoord> = emptySet()
 
+    // --- Preallocated objects (avoid allocations in onDraw) ---
+    private val reusablePath = Path()
+    private val reusableCorners = mutableListOf<PointF>()
+    private val reusablePoint = PointF()
+
     // --- Transform ---
     private var scale = 1f
     private var panX = 0f
@@ -77,37 +82,37 @@ class HexBoardView @JvmOverloads constructor(
     // --- Paints ---
     private val hexFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#E8D5B7")
+        color = "#E8D5B7".toColorInt()
     }
     private val hexStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#8B7355")
+        color = "#8B7355".toColorInt()
         strokeWidth = 2f
     }
     private val hexHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#FFD700")
+        color = "#FFD700".toColorInt()
     }
     private val hexValidTargetPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#90EE90")
+        color = "#90EE90".toColorInt()
     }
     private val stoneWhitePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.WHITE
+        color = 0xFFFFFFFF.toInt()
     }
     private val stoneWhiteBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#999999")
+        color = "#999999".toColorInt()
         strokeWidth = 3f
     }
     private val stoneBlackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#222222")
+        color = "#222222".toColorInt()
     }
     private val stoneBlackBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = 0xFF000000.toInt()
         strokeWidth = 3f
     }
 
@@ -130,10 +135,8 @@ class HexBoardView @JvmOverloads constructor(
             // Draw each hex on the board
             for (hex in gs.boardHexes) {
                 val center = HexUtils.hexToPixel(hex)
-                val screenCenter = PointF(
-                    center.x + boardCenterX,
-                    center.y + boardCenterY
-                )
+                reusablePoint.x = center.x + boardCenterX
+                reusablePoint.y = center.y + boardCenterY
 
                 // Determine fill color
                 val fillPaint = when {
@@ -142,34 +145,32 @@ class HexBoardView @JvmOverloads constructor(
                     else -> hexFillPaint
                 }
 
-                // Draw hexagon
-                val path = Path()
-                val corners = HexUtils.hexCorners(screenCenter)
+                // Draw hexagon (reusing the path)
+                reusablePath.rewind()
+                val corners = HexUtils.hexCorners(reusablePoint, out = reusableCorners)
                 if (corners.isNotEmpty()) {
-                    path.moveTo(corners[0].x, corners[0].y)
+                    reusablePath.moveTo(corners[0].x, corners[0].y)
                     for (i in 1 until corners.size) {
-                        path.lineTo(corners[i].x, corners[i].y)
+                        reusablePath.lineTo(corners[i].x, corners[i].y)
                     }
-                    path.close()
-                    drawPath(path, fillPaint)
-                    drawPath(path, hexStrokePaint)
+                    reusablePath.close()
+                    drawPath(reusablePath, fillPaint)
+                    drawPath(reusablePath, hexStrokePaint)
                 }
             }
 
             // Draw stones
             for ((hex, color) in gs.stones) {
                 val center = HexUtils.hexToPixel(hex)
-                val screenCenter = PointF(
-                    center.x + boardCenterX,
-                    center.y + boardCenterY
-                )
+                reusablePoint.x = center.x + boardCenterX
+                reusablePoint.y = center.y + boardCenterY
                 val stoneRadius = HexUtils.HEX_SIZE * 0.7f  // fill 70% of hex width
 
                 val fillPaint = if (color == StoneColor.WHITE) stoneWhitePaint else stoneBlackPaint
                 val borderPaint = if (color == StoneColor.WHITE) stoneWhiteBorderPaint else stoneBlackBorderPaint
 
-                drawCircle(screenCenter.x, screenCenter.y, stoneRadius, fillPaint)
-                drawCircle(screenCenter.x, screenCenter.y, stoneRadius, borderPaint)
+                drawCircle(reusablePoint.x, reusablePoint.y, stoneRadius, fillPaint)
+                drawCircle(reusablePoint.x, reusablePoint.y, stoneRadius, borderPaint)
             }
         }
     }
@@ -204,7 +205,7 @@ class HexBoardView @JvmOverloads constructor(
         val rr = (-dx * 0.5f + dy * 0.8660254f) / HexUtils.HEX_SIZE
         val rs = -rq - rr
         // Point is inside the hex if all three absolute values <= 0.5
-        return if (maxOf(Math.abs(rq), Math.abs(rr), Math.abs(rs)) <= 0.5001f) hex else null
+        return if (maxOf(kotlin.math.abs(rq), kotlin.math.abs(rr), kotlin.math.abs(rs)) <= 0.5001f) hex else null
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -237,6 +238,13 @@ class HexBoardView @JvmOverloads constructor(
         }
         return true
     }
+
+    override fun performClick(): Boolean {
+        // Satisfy the accessibility contract: views that override onTouchEvent
+        // should also override performClick.
+        return super.performClick()
+    }
+
 
     // --- Scale Gesture Listener ---
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -284,6 +292,7 @@ class HexBoardView @JvmOverloads constructor(
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             if (isScaling) return false
             val hex = touchToHex(e.x, e.y) ?: return false
+            performClick()
             listener?.onHexTapped(hex)
             return true
         }
