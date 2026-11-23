@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Susan</string>
+    <string name="btn_white">White</string>
+    <string name="btn_black">Black</string>
+    <string name="btn_reset">Reset</string>
+    <string name="btn_new_game">New Game</string>
+    <string name="turn_white">White\'s turn</string>
+    <string name="turn_black">Black\'s turn</string>
+    <string name="white_wins">White wins!</string>
+    <string name="black_wins">Black wins!</string>
+    <string name="white_no_moves">White has no legal moves. Black wins!</string>
+    <string name="black_no_moves">Black has no legal moves. White wins!</string>
+</resources>

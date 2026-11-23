@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="board_background">#FFF5E6</color>
+    <color name="hex_fill">#E8D5B7</color>
+    <color name="hex_stroke">#8B7355</color>
+    <color name="stone_white">#FFFFFF</color>
+    <color name="stone_white_border">#999999</color>
+    <color name="stone_black">#222222</color>
+    <color name="stone_black_border">#000000</color>
+    <color name="hex_highlight">#FFD700</color>
+    <color name="hex_valid_target">#90EE90</color>
+    <color name="turn_indicator">#333333</color>
+</resources>

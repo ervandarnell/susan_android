@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.SusanAndroid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/hex_stroke</item>
+        <item name="colorOnPrimary">@color/board_background</item>
+        <item name="colorPrimaryVariant">@color/hex_fill</item>
+        <item name="colorOnSecondary">@color/turn_indicator</item>
+        <item name="android:statusBarColor">@color/board_background</item>
+    </style>
+
+    <style name="Theme.SusanGame" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/hex_stroke</item>
+        <item name="colorOnPrimary">@color/board_background</item>
+        <item name="colorPrimaryVariant">@color/hex_fill</item>
+        <item name="colorOnSecondary">@color/turn_indicator</item>
+        <item name="android:statusBarColor">@color/board_background</item>
+    </style>
+</resources>
